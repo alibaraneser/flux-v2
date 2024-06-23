@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['web']], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');;
     Route::get('/test', 'HomeController@test');
-
+    Route::get('/cmd/search-run', [HomeController::class, 'cmdSearchRun'])->name('cmdSearchRun');
+    Route::get('/cmd/search-related', [HomeController::class, 'cmdSearchRelated'])->name('cmdSearchRelated');
     Route::get('/searchTrack', [SpotifyController::class, 'searchTrack'])->name('searchTrack');
 
     Route::get('/genre/{id}', [HomeController::class, 'genre'])->name('genre');

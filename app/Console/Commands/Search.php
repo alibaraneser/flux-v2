@@ -81,7 +81,5 @@ class Search extends Command
                 }
             }
         }
-
-
     }
 }

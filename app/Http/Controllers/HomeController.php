@@ -20,6 +20,93 @@ class HomeController extends Controller
         return view('home', compact('genres'));
     }
 
+    public function cmdSearchRun(){
+        $search = \App\Models\Search::where('status', 0)->get();
+
+        foreach($search as $item){
+            $flag = false;
+            $test = Spotify::searchArtists($item->artist)->get();
+            foreach($test["artists"]["items"] as $artist){
+                $artistName = $artist["name"];
+                $artistURL = $artist["external_urls"]["spotify"];
+                $artistId = $artist["id"];
+                $genres = $artist["genres"];
+
+                if($artistId) {
+                    $albums = Spotify::artistAlbums($artistId)->get();
+
+                    if(count($albums["items"]) > 0){
+
+                        $album = $albums["items"][0];
+                        $tracks = Spotify::albumTracks($album["id"])->get();
+
+
+                        if(count($tracks["items"]) > 0){
+
+                            $track = $tracks["items"][0];
+
+                            addArtist($artistId, $artistName, $artistURL);
+
+                            addGenreList($genres, $artistId);
+
+                            $preview = $track["preview_url"];
+
+                            addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
+                            $flag = true;
+                        }
+
+                    }
+
+                }
+
+                if($flag){
+                    $item->status = 1;
+                    $item->save();
+                }
+            }
+        }
+    }
+
+    public function cmdSearchRelated(){
+        $artists = DB::table("artists")->inRandomOrder()->limit(200)->get();
+
+        foreach ($artists as $item) {
+            $test = Spotify::artistRelatedArtists($item->artist_id)->get();
+
+            foreach ($test["artists"] as $artist) {
+                $artistName = $artist["name"];
+                $artistURL = $artist["external_urls"]["spotify"];
+                $artistId = $artist["id"];
+                $genres = $artist["genres"];
+
+                if ($artistId) {
+                    $albums = Spotify::artistAlbums($artistId)->get();
+
+                    if (count($albums["items"]) > 0) {
+
+                        $album = $albums["items"][0];
+                        $tracks = Spotify::albumTracks($album["id"])->get();
+
+
+                        if (count($tracks["items"]) > 0) {
+
+                            $track = $tracks["items"][0];
+
+                            addArtist($artistId, $artistName, $artistURL);
+
+                            addGenreList($genres, $artistId);
+
+                            $preview = $track["preview_url"];
+
+                            addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
+                        }
+                    }
+                }
+            }
+            sleep(0.3);
+        }
+    }
+
     public function test()
     {
         $data = file_get_contents("http://everynoise.com/cities.html");
