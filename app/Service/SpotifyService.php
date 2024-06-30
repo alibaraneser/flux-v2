@@ -145,10 +145,10 @@ class SpotifyService
 
     public function addGenreList($genres, $artistId){
         foreach ($genres as $genre) {
-            if (!searchGenre($genre)) {
-                addGenre($genre);
+            if (!$this->searchGenre($genre)) {
+                $this->addGenre($genre);
             }
-            addGenreArtist(genreId($genre), $artistId);
+            $this->addGenreArtist($this->genreId($genre), $artistId);
         }
     }
 
