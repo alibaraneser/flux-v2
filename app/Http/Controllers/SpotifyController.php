@@ -6,6 +6,7 @@ use Aerni\Spotify\Spotify;
 
 use App\Artists;
 use App\Genre;
+use App\Service\SpotifyService;
 use App\Tracks;
 use Auth;
 use Cache;
@@ -17,11 +18,11 @@ use DB;
 
 class SpotifyController extends Controller
 {
-    public function searchTrack()
+    public function searchTrack(SpotifyService $service)
     {
         $count = 0;
         while ($count < 30) {
-            $random = readable_random_string(random_index());
+            $random = $service->readable_random_string();
             $test = Spotify::searchItems($random . "*", 'track')->get();
             $items = $test["tracks"]["items"];
 
@@ -31,9 +32,9 @@ class SpotifyController extends Controller
                     $artistName = $item["artists"][0]["name"];
                     $artistID = $item["artists"][0]["id"];
                     $artistURL = $item["artists"][0]["external_urls"]["spotify"];
-                    addArtist($artistID, $artistName, $artistURL);
+                    $this->addArtist($artistID, $artistName, $artistURL);
                     $this->getGenreByArtist($artistID);
-                    addTrack($item["id"], $artistID, $item["name"], $item["album"]["images"][0]["url"], $preview);
+                    $this->addTrack($item["id"], $artistID, $item["name"], $item["album"]["images"][0]["url"], $preview);
                 }
             }
             $count++;

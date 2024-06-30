@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
+use App\Service\SpotifyService;
 use Spotify;
 use Illuminate\Console\Command;
 
@@ -35,7 +36,7 @@ class Search extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(SpotifyService $service)
     {
         $search = \App\Models\Search::where('status', 0)->get();
 
@@ -61,13 +62,13 @@ class Search extends Command
 
                             $track = $tracks["items"][0];
 
-                            addArtist($artistId, $artistName, $artistURL);
+                            $service->addArtist($artistId, $artistName, $artistURL);
 
-                            addGenreList($genres, $artistId);
+                            $service->addGenreList($genres, $artistId);
 
                             $preview = $track["preview_url"];
 
-                            addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
+                            $service->addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
                             $flag = true;
                         }
 

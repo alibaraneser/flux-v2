@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
+use App\Service\SpotifyService;
 use Spotify;
 use DB;
 use Illuminate\Console\Command;
@@ -36,7 +37,7 @@ class RelatedArtist extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(SpotifyService $service)
     {
         $artists = DB::table("artists")->inRandomOrder()->limit(200)->get();
 
@@ -62,13 +63,13 @@ class RelatedArtist extends Command
 
                             $track = $tracks["items"][0];
 
-                            addArtist($artistId, $artistName, $artistURL);
+                            $service->addArtist($artistId, $artistName, $artistURL);
 
-                            addGenreList($genres, $artistId);
+                            $service->addGenreList($genres, $artistId);
 
                             $preview = $track["preview_url"];
 
-                            addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
+                            $service->addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
                         }
                     }
                 }

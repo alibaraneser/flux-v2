@@ -6,6 +6,7 @@ use App\Models\Artists;
 use App\Models\Genre;
 use App\Models\Search;
 use App\Models\Tracks;
+use App\Service\SpotifyService;
 use Illuminate\Http\Request;
 use Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,7 @@ class HomeController extends Controller
         return view('home', compact('genres'));
     }
 
-    public function cmdSearchRun(){
+    public function cmdSearchRun(SpotifyService $service){
         $search = \App\Models\Search::where('status', 0)->get();
 
         foreach($search as $item){
@@ -45,13 +46,13 @@ class HomeController extends Controller
 
                             $track = $tracks["items"][0];
 
-                            addArtist($artistId, $artistName, $artistURL);
+                            $service->addArtist($artistId, $artistName, $artistURL);
 
-                            addGenreList($genres, $artistId);
+                            $service->addGenreList($genres, $artistId);
 
                             $preview = $track["preview_url"];
 
-                            addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
+                            $service->addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
                             $flag = true;
                         }
 
@@ -67,7 +68,7 @@ class HomeController extends Controller
         }
     }
 
-    public function cmdSearchRelated(){
+    public function cmdSearchRelated(SpotifyService $service){
         $artists = DB::table("artists")->inRandomOrder()->limit(200)->get();
 
         foreach ($artists as $item) {
@@ -92,13 +93,13 @@ class HomeController extends Controller
 
                             $track = $tracks["items"][0];
 
-                            addArtist($artistId, $artistName, $artistURL);
+                            $service->addArtist($artistId, $artistName, $artistURL);
 
-                            addGenreList($genres, $artistId);
+                            $service->addGenreList($genres, $artistId);
 
                             $preview = $track["preview_url"];
 
-                            addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
+                            $service->addTrack($track["id"], $artistId, $track["name"], $album["images"][0]["url"], $preview);
                         }
                     }
                 }
@@ -107,7 +108,7 @@ class HomeController extends Controller
         }
     }
 
-    public function test()
+    public function test(SpotifyService $service)
     {
         $data = file_get_contents("http://everynoise.com/cities.html");
 
@@ -134,11 +135,11 @@ class HomeController extends Controller
                     foreach ($genre[2] as $item) {
                         $id = DB::table('city_name')->where('name', $city)->first();
 
-                        if (!searchGenre($item)) {
-                            addGenre($item);
+                        if (!$service->searchGenre($item)) {
+                            $service->addGenre($item);
                         }
 
-                        addCities($id->id, genreId($item));
+                        $service->addCities($id->id, $service->genreId($item));
                     }
 
 
