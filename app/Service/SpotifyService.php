@@ -83,7 +83,7 @@ class SpotifyService
         if($id){
             DB::table("genres")->insert([
                 'name' => $id,
-                'slug' => permalink($id),
+                'slug' => $this->permalink($id),
                 'count' => 0
             ]);
         }
